@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1{
+            text-align: center;
+        }
+
+        .random-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            width: calc(33.333% - 20px);
+            margin-bottom: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .rating-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .good { background-color: #4CAF50; color: white; }
+        .bad { background-color: #f44336; color: white; }
+        .unknown { background-color: #ff9800; color: white; }
+        .done { background-color: #808080; color: white; }
+        button:hover {opacity: 0.8;}
+        
+        
+        .card li {
+            list-style: none;
+            margin: 10px 0;
+        }
+        .back-button {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .paragraph{
+            text-align: center;
+        }
+        .card img {
+            width: 120%; /* Image takes up right half of the card */
+            height: auto; /* Maintains aspect ratio */
+            margin-right: 10px;
+            border-radius: 4px; /* Optional: rounds the corners of the image */
+            object-fit: cover; /* Ensures the image covers the area, might crop */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .card div {
+            width: 45%; /* Information takes up left half, adjust padding as needed */
+            display: flex;
+            flex-direction: column; /* Stacks the information vertically */
+            justify-content: center; /* Centers information vertically */
+        }
+        .anime-name {
+            font-weight: bold;
+            font-size: larger;
+            list-style: none; /* Removes bullet points */
+            margin: 5px 0; /* Adjust space between details */
+        }
+    
+        .anime-details {
+            font-size: smaller;
+            list-style: none; /* Removes bullet points */
+            margin: 5px 0; /* Adjust space between details */
+        }
+        .random-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* This will center the cards in the container */
+            gap: 20px; 
+        }
+        .results{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Creates three columns */
+            gap: 20px; /* Space between the cards */
+        }
+        
+        .card {
+            flex-basis: calc(33.333% - 20px); /* Adjusts card width to fit 3 per row, accounting for gap */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+    </style>
+</head>
+<body>
+    <a href="/search" class="back-button">Search</a>
+    <div class="container">
+        <h1>Rate This Anime!</h1>
+        <p class="paragraph">Go through and create your preference list! If you don't know many, just judge from the cover! When you're finished click Done!</p>
+        <div class= "random-container">
+            <div class="card">
+                <img src="{{ random_anime.image_url }}" alt="Anime Image" class="anime-image">
+                <div class="card-info">
+                    <li class="anime-name">{{ random_anime.name }}</li>
+                    <li class="anime-details">Genre: {{ random_anime.genre }}</li>
+                    <li class="anime-details">Type: {{ random_anime.type }}</li>
+                    <li class="anime-details">Episodes: {{ random_anime.episodes }}</li>
+                    <li class="anime-details">Rating: {{ random_anime.rating }}</li>
+                </div>
+            </div>
+        </div>
+        <form method="POST" action="{% url 'rate_anime' %}">
+            {% csrf_token %}
+            <input type="hidden" name="anime_id" value="{{ random_anime.anime_id }}">
+        
+            <div class="rating-buttons">
+                <button type="submit" name="rating" value="good" class="good">Good</button>
+                <button type="submit" name="rating" value="bad" class="bad">Bad</button>
+                <button type="submit" name="rating" value="unknown" class="unknown">Unknown</button>
+            </div>
+        </form>
+        
+        <div>
+            <!-- Assuming you want the "Done" button to link to the page where ratings are viewed -->
+            <button class="done" onclick="location.href='{% url 'view_ratings' %}'">View Ratings</button>
+            <button class="done" id="showRecommendations">Show Recommendations</button>
+
+
+        </div>
+        <div class="container">
+            <h2>Anime You Might Like...</h2>
+            {% if recommendations %}
+                <div class="results">
+                    {% for anime in recommendations %}
+                        <div class="card">
+                            <img src="{{ anime.image_url }}" alt="{{ anime.name }}" class="anime-image">
+                            <div class="card-info">
+                                <li class="anime-name">{{ anime.name }}</li>
+                                <li class="anime-details">Genre: {{ anime.genre }}</li>
+                                <li class="anime-details">Type: {{ anime.type }}</li>
+                                <li class="anime-details">Episodes: {{ anime.episodes }}</li>
+                                <li class="anime-details">Rating: {{ anime.rating }}</li>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+<script>
+    document.getElementById('showRecommendations').addEventListener('click', function() {
+        window.location.href = '{% url 'rate_anime' %}?action=recommend';
+    });
+</script>    
+</body>
+</html>

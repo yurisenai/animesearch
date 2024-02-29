@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Ratings</title>
+    <!-- Add any additional CSS or JavaScript links here -->
+</head>
+<body>
+    <h1>Rated Animes</h1>
+    {% if ratings %}
+    <ul>
+        {% for rating in ratings %}
+        <li>{{ rating.anime_id }} - {{ rating.rating }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No ratings found.</p>
+    {% endif %}
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        <button type="submit" name="action" value="clear_ratings">Clear Ratings</button>
+    </form>
+
+    <button onclick="location.href='{% url 'rate_anime' %}'">Rate More Animes</button>
+</body>
+
+</html>
